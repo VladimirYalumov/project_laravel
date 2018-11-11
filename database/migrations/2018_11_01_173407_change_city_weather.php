@@ -27,6 +27,7 @@ class ChangeCityWeather extends Migration
     {
         Schema::table('city_temp', function (Blueprint $table) {
             $table->dropColumn('temp');
+            $table->dropColumn('date');
         });
     }
 }

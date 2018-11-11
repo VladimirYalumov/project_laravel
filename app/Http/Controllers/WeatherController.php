@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Adapter\YandexAdapter;
 use Illuminate\Http\Request;
 use App\Http\Requests;
 
@@ -16,55 +17,60 @@ class WeatherController extends Controller
 {
     private $lat = "0";
     private $lon = "0";
-    private $city_arr = [];
+    private $city;
 
     function __construct() {
-        $this->city_arr = ["Moscow","Paris","London"];
+    }
+    
+    public function check_registration(Request $request){
+        DB::table('users')->insert(
+            array('login' => $request['login'], 'password' => $request['password'], 'status' => $request['status'])
+        );
+        return view('welcome');
     }
 
-    public function index()
+    public function check_input(Request $request){
+        $users = DB::table('users')->get();
+        $flag = false;
+
+        foreach ($users as $user) {
+            if ( ($user->login == $request['login']) && ($user->password == $request['password']) )
+            {
+                $flag = true;
+                break;
+            }
+        }
+
+        if ($flag == true)
+        {
+            if ($user->status == 'admin')
+            {
+                $city_weather_list = DB::table('city_temp')->get();
+                return view('admin', compact('city_weather_list'));
+            }
+            else if ($user->status == 'user')
+            {
+                return view('user');
+            }
+        }
+        else
+        {
+            return view('error');
+        }
+
+    }
+
+    public function index(Request $request)
     {
-        $input = $_GET['city'];
-        $city = "";
-        if ($input == "москва")
-        {
-            $this->lat = "46";
-            $this->lon = "37";
-            $city = $this->city_arr[0];
-        }
-        else if ($input == "париж")
-        {
-            $this->lat = "49";
-            $this->lon = "2";
-            $city = $this->city_arr[1];
-        }
-        else if ($input == "лондон")
-        {
-            $this->lat = "51.5";
-            $this->lon = "0";
-            $city = $this->city_arr[2];
-        }
+        // Создание адаптера для Яндекс Погоды
+        $yandex_adapter = new YandexAdapter();
 
-        $client = new Client();
-        $options =
-        [
-            'headers' =>
-                [
-                    'Accept' => 'application/json',
-                    'Contect-type' => 'application/json',
-                    'X-Yandex-API-Key' => 'ab5539c6-60df-40be-a1ae-b9980a94ca8b'
-                ]
-        ];
+        // Получение данных из БД полей: широта, долгота, название местности
+        $city_pos = DB::table('cities')->where('id', $request['list'])->first();
 
-            $res = $client->request('GET',"https://api.weather.yandex.ru/v1/informers?lat=$this->lat&lon=$this->lon", $options);
-            $data = json_decode((string)$res->getBody(),true);
-            $array = [ 'var1' => $data['fact']['temp'], 'var2' => $city];
-
-            DB::table('city_temp')->insert(
-            array('city' => $city, 'temp' => $data['fact']['temp'], 'date' => date('Y-m-d H:i:s'))
-            );
-
-            return view('weather', $array);
+        // Переваём во view массив данных об указанном городе
+        return view('weather', $yandex_adapter->getWeather($city_pos->lat, $city_pos->long, $city_pos->city_name));
     }
+
 
 }

@@ -11,7 +11,7 @@
         <div>
             Temp = <?php echo $var1 ?>
             City = <?php echo $var2 ?>
-            <form action="/">
+            <form action="user">
                 <button>Обратно</button>
             </form>
         </div>

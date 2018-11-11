@@ -5,21 +5,23 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
+        <style type="text/css">
+            div { padding: 10px 15px}
+        </style>
 
     </head>
     <body>
-    <form action="weather" method="GET">
-        Город: <input type="text" name="city"><br>
-        <select name = "list">
+    <div>
+        <form action="registration" method="GET">
+            <input type="submit" value="Зарегаться">
+        </form>
+    </div>
 
-            <option value=”1”>Москва</option>
+    <div>
+        <form action="input" method="GET">
+            <input type="submit" value="Войти">
+        </form>
+    </div>
 
-            <option value=”2”>Лондон</option>
-
-            <option value=”3”>Париж</option>
-
-        </select>
-        <input type="submit" value="Отправить">
-    </form>
     </body>
 </html>
