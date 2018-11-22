@@ -12,13 +12,13 @@
     </head>
     <body>
     <div>
-        <form action="registration" method="GET">
+        <form action="/registration" method="GET">
             <input type="submit" value="Зарегаться">
         </form>
     </div>
 
     <div>
-        <form action="input" method="GET">
+        <form action="/login" method="GET">
             <input type="submit" value="Войти">
         </form>
     </div>

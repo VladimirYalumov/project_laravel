@@ -9,8 +9,8 @@
 </head>
 <body>
         <div>
-            Temp = <?php echo $var1 ?>
-            City = <?php echo $var2 ?>
+            Temp = <?php echo $weather->get_temp();?>
+            City = <?php echo $weather->get_city();?>
             <form action="user">
                 <button>Обратно</button>
             </form>

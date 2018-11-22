@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Adapter\YandexAdapter;
+use App\Adapter\OpenWeatherAdapter;
+use App\DBO\WeatherDBO;
+use App\WeatherModel;
 use Illuminate\Http\Request;
 use App\Http\Requests;
 
@@ -12,65 +15,56 @@ use GuzzleHttp\Exception\RequestException;
 use Symfony\Component\Console\Input\Input;
 use DB;
 use App\Quotation;
+use App\City;
+use App\CityTemp;
 
 class WeatherController extends Controller
 {
-    private $lat = "0";
-    private $lon = "0";
-    private $city;
-
-    function __construct() {
-    }
-    
-    public function check_registration(Request $request){
-        DB::table('users')->insert(
-            array('login' => $request['login'], 'password' => $request['password'], 'status' => $request['status'])
-        );
-        return view('welcome');
-    }
-
-    public function check_input(Request $request){
-        $users = DB::table('users')->get();
-        $flag = false;
-
-        foreach ($users as $user) {
-            if ( ($user->login == $request['login']) && ($user->password == $request['password']) )
-            {
-                $flag = true;
-                break;
-            }
-        }
-
-        if ($flag == true)
-        {
-            if ($user->status == 'admin')
-            {
-                $city_weather_list = DB::table('city_temp')->get();
-                return view('admin', compact('city_weather_list'));
-            }
-            else if ($user->status == 'user')
-            {
-                return view('user');
-            }
-        }
-        else
-        {
-            return view('error');
-        }
-
-    }
 
     public function index(Request $request)
     {
         // Создание адаптера для Яндекс Погоды
-        $yandex_adapter = new YandexAdapter();
+        $yandex_adapter = new OpenWeatherAdapter();
+
+        $weather = new WeatherDBO();
 
         // Получение данных из БД полей: широта, долгота, название местности
-        $city_pos = DB::table('cities')->where('id', $request['list'])->first();
+        $city_pos = $this->get_city_data($request);
 
-        // Переваём во view массив данных об указанном городе
-        return view('weather', $yandex_adapter->getWeather($city_pos->lat, $city_pos->long, $city_pos->city_name));
+        $weather = $yandex_adapter->get_weather($city_pos->lat, $city_pos->long);
+
+        $weather_data_array = ['weather_temp' => $weather->get_temp(), 'city_name' => $weather->get_city()];
+        
+        // Запись данных в БД
+        $this->set_city_temperature(
+            $city_pos->cityName,             
+            $weather->getTemp(), 
+            date('Y-m-d H:i:s'),
+            $weather->get_service()
+        );
+
+        // Передаём во view массив данных об указанном городе
+        return view('weather', compact('weather'));
     }
 
 
+    public function get_city_data($request)
+    {
+        $city = City::all()->where('id', $request['list'])->first();
+        return $city;
+    }
+
+
+    public function set_city_temperature($city, $temp, $date, $service)
+    {
+        $city = CityTemp::create(
+        [
+            'city' => $city,
+            'temp' => $temp,
+            'service' => $service,
+            'date' => $date
+        ]);
+
+        return;
+    }
 }

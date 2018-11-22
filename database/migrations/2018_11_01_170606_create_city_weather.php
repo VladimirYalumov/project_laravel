@@ -11,6 +11,9 @@ class CreateCityWeather extends Migration
         Schema::create('city_temp', function (Blueprint $table) {
             $table->increments('id');
             $table->string('city',20);
+            $table->integer('temp');
+            $table->string('service');
+            $table->dateTime('date');
             $table->timestamps();
         });
     }

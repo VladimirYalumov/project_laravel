@@ -21,14 +21,17 @@
     <td>Город</td>
     <td>Температура</td>
     <td>Дата запроса</td>
+    <td>Сайт с которого взята информация</td>
 </tr>
 <?php
+$city_weather_list = DB::table('city_temp')->get();
 foreach ($city_weather_list as $city_weather)
 {
     echo '<tr>';
     echo '<th>'.$city_weather->city.'</th>';
     echo '<th>'.$city_weather->temp.'</th>';
     echo '<th>'.$city_weather->date.'</th>';
+    echo '<th>'.$city_weather->service.'</th>';
     echo '</tr>';
 }
 ?>

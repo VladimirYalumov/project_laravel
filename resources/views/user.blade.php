@@ -11,14 +11,14 @@
 <form action="weather" method="GET">
     <select name = "list">
         <option value="1">Москва</option>
-        <option value="2">Париж</option>
-        <option value="3">Лондон</option>
-        <option value="4">Киев</option>
-        <option value="5">Рим</option>
+        <option value="2">Лондон</option>
+        <option value="3">Киев</option>
+        <option value="4">Париж</option>
+        <option value="5">Египет</option>
     </select>
     <input type="submit" value="Отправить">
 </form>
-<form action="/">
+<form action="/logout">
     <p><button>Выйти из учётной записи</button></p>
 </form>
 </body>

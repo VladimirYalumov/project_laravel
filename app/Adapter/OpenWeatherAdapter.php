@@ -12,33 +12,23 @@ use DB;
 use App\Quotation;
 use App\DBO\WeatherDBO;
 
-class YandexAdapter implements Adapter
+class OpenWeatherAdapter implements Adapter
 {
     public function get_weather($lat, $lon) : WeatherDBO
     {
         $weather = new WeatherDBO();
 
         $client = new Client();
-        $options =
-            [
-                'headers' =>
-                    [
-                        'Accept' => 'application/json',
-                        'Contect-type' => 'application/json',
-                        'X-Yandex-API-Key' => 'ab5539c6-60df-40be-a1ae-b9980a94ca8b'
-                    ]
-            ];
         
         // Занесение необходимых данных в массив
-        $res = $client->request('GET',"https://api.weather.yandex.ru/v1/informers?lat=$lat&lon=$lon", $options);
+        $res = $client->request('GET',"http://api.openweathermap.org/data/2.5/find?lat=$lat&lon=$lon&appid=4d56ecf2d163adbe801b1b9a65c0c9cd");
         $data = json_decode((string)$res->getBody(),true);
-        $temp = [ 'temperature' => $data['fact']['temp'] ];
 
         $weather = new WeatherDBO();
 
-        $weather->set_temp($data['fact']['temp']);
+        $weather->set_temp($data['main']['temp']);
 
-        $weather->set_service("yandex.ru");
+        $weather->set_service("openweathermap.org");
 
         return $weather;
 
